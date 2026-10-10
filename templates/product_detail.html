@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - NovaStore{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+<nav style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+    <a href="{% url 'store:home' %}">Home</a> &nbsp;/&nbsp;
+    <a href="{% url 'store:products' %}">Products</a> &nbsp;/&nbsp;
+    <a href="{% url 'store:products_by_category' product.category.slug %}">{{ product.category.name }}</a> &nbsp;/&nbsp;
+    <span style="color: var(--dark); font-weight: 600;">{{ product.name }}</span>
+</nav>
+
+<!-- Product Detail Card -->
+<div class="product-detail-layout">
+    <div class="detail-gallery">
+        <img src="{{ product.get_image }}" alt="{{ product.name }}">
+    </div>
+
+    <div class="detail-info">
+        <span class="detail-category">{{ product.category.name }}</span>
+        <h1 class="detail-title">{{ product.name }}</h1>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="color: #f59e0b; font-size: 1.1rem;">★★★★★</div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">(4.9 out of 5 based on 32 reviews)</span>
+        </div>
+
+        <div class="detail-price-box">
+            <span class="detail-price">${{ product.get_display_price }}</span>
+            {% if product.has_discount %}
+                <span class="detail-old-price">${{ product.price }}</span>
+                <span class="badge badge-sale">Save {{ product.discount_percentage }}%</span>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+            {% if product.stock > 0 %}
+                <span class="badge badge-stock">In Stock ({{ product.stock }} units ready to ship)</span>
+            {% else %}
+                <span class="badge badge-out-of-stock">Out of Stock</span>
+            {% endif %}
+        </div>
+
+        <div class="detail-description">
+            <p>{{ product.description|linebreaks }}</p>
+        </div>
+
+        <!-- Add to Cart Form -->
+        {% if product.stock > 0 %}
+        <form action="{% url 'store:add_to_cart' product.id %}" method="POST" class="detail-action-form">
+            {% csrf_token %}
+            <div class="qty-control">
+                <button type="button" class="qty-btn btn-decrease">-</button>
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input">
+                <button type="button" class="qty-btn btn-increase">+</button>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1.05rem;">
+                🛒 Add to Cart
+            </button>
+        </form>
+        {% else %}
+        <button class="btn btn-secondary" disabled>Currently Unavailable</button>
+        {% endif %}
+
+        <!-- Feature Points -->
+        <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem; color: var(--text-muted);">
+            <div>🚚 <strong>Free Shipping:</strong> On all orders over $50</div>
+            <div>🔄 <strong>Return Policy:</strong> 30-day money-back guarantee</div>
+            <div>🔐 <strong>Secure Checkout:</strong> SSL encrypted payment options</div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+<section style="margin-top: 3rem;">
+    <h2 class="section-title" style="margin-bottom: 1.5rem;">You Might Also Like</h2>
+    <div class="products-grid">
+        {% for item in related_products %}
+        <div class="product-card">
+            <div class="product-thumb">
+                <a href="{{ item.get_absolute_url }}">
+                    <img src="{{ item.get_image }}" alt="{{ item.name }}">
+                </a>
+            </div>
+            <div class="product-details">
+                <span class="product-category">{{ item.category.name }}</span>
+                <h3 class="product-title">
+                    <a href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+                </h3>
+                <div class="product-price-row">
+                    <span class="current-price">${{ item.get_display_price }}</span>
+                    <form action="{% url 'store:add_to_cart' item.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary btn-sm">+ Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

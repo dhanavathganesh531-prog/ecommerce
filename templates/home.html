@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}NovaStore - Premium Shopping Experience{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero-banner">
+    <div class="hero-text">
+        <span class="hero-badge">✨ New Season 2026 Collection</span>
+        <h1 class="hero-title">Elevate Your Everyday Style & Living</h1>
+        <p class="hero-subtitle">Discover top-rated electronics, minimalist apparel, and lifestyle accessories engineered for perfection.</p>
+        <div class="hero-cta">
+            <a href="{% url 'store:products' %}" class="btn btn-primary" style="background: #ffffff; color: var(--dark); padding: 0.85rem 1.75rem;">Explore Catalog →</a>
+            <a href="{% url 'store:products' %}" class="btn" style="border: 1px solid rgba(255,255,255,0.4); color: white;">Featured Deals</a>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80" alt="New Arrivals">
+    </div>
+</section>
+
+<!-- Categories Section -->
+{% if categories %}
+<section class="categories-section">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Browse through our handpicked product categories</p>
+        </div>
+        <a href="{% url 'store:products' %}" style="font-weight: 600;">View All &rarr;</a>
+    </div>
+
+    <div class="categories-grid">
+        {% for cat in categories %}
+        <a href="{% url 'store:products_by_category' cat.slug %}" class="category-card">
+            <div class="category-icon">📦</div>
+            <h3 class="category-name">{{ cat.name }}</h3>
+            <span class="category-count">{{ cat.products.count }} Products</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="featured-section">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Featured Products</h2>
+            <p class="section-subtitle">Our most popular and trending items right now</p>
+        </div>
+        <a href="{% url 'store:products' %}" style="font-weight: 600;">Browse All &rarr;</a>
+    </div>
+
+    <div class="products-grid">
+        {% for product in featured_products %}
+        <div class="product-card">
+            <div class="product-thumb">
+                <a href="{{ product.get_absolute_url }}">
+                    <img src="{{ product.get_image }}" alt="{{ product.name }}">
+                </a>
+                <div class="product-badges">
+                    {% if product.has_discount %}
+                        <span class="badge badge-sale">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                    {% if product.is_featured %}
+                        <span class="badge badge-featured">Featured</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-details">
+                <span class="product-category">{{ product.category.name }}</span>
+                <h3 class="product-title">
+                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                </h3>
+                <div class="product-price-row">
+                    <div class="price-box">
+                        <span class="current-price">${{ product.get_display_price }}</span>
+                        {% if product.has_discount %}
+                            <span class="old-price">${{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                    <form action="{% url 'store:add_to_cart' product.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary btn-sm" title="Add to Cart">+ Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Products Section -->
+{% if latest_products %}
+<section class="latest-section">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">New Arrivals</h2>
+            <p class="section-subtitle">Check out the freshest additions to our store</p>
+        </div>
+    </div>
+
+    <div class="products-grid">
+        {% for product in latest_products %}
+        <div class="product-card">
+            <div class="product-thumb">
+                <a href="{{ product.get_absolute_url }}">
+                    <img src="{{ product.get_image }}" alt="{{ product.name }}">
+                </a>
+                <div class="product-badges">
+                    {% if product.has_discount %}
+                        <span class="badge badge-sale">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-details">
+                <span class="product-category">{{ product.category.name }}</span>
+                <h3 class="product-title">
+                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                </h3>
+                <div class="product-price-row">
+                    <div class="price-box">
+                        <span class="current-price">${{ product.get_display_price }}</span>
+                        {% if product.has_discount %}
+                            <span class="old-price">${{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                    <form action="{% url 'store:add_to_cart' product.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary btn-sm" title="Add to Cart">+ Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Value Props -->
+<section style="margin-top: 4rem; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 2.5rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; text-align: center;">
+        <div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
+            <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 0.35rem;">Free Fast Shipping</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">On orders over $50 with doorstep delivery tracking</p>
+        </div>
+        <div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛡️</div>
+            <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 0.35rem;">Money-Back Guarantee</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Hassle-free 30-day return policy on all products</p>
+        </div>
+        <div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+            <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 0.35rem;">100% Secure Checkout</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Protected by enterprise-grade 256-bit encryption</p>
+        </div>
+        <div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+            <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 0.35rem;">24/7 Dedicated Support</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Friendly experts ready to help whenever you need</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

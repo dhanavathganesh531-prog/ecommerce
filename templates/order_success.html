@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmed - NovaStore{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 2rem auto; background: white; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 3rem 2.5rem; text-align: center; box-shadow: var(--shadow-md);">
+    <div style="width: 72px; height: 72px; background: #d1fae5; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem auto;">
+        ✓
+    </div>
+
+    <span class="badge badge-stock" style="margin-bottom: 0.75rem;">Order Confirmed</span>
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;">Thank You for Your Order!</h1>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">We have received your order <strong>#{{ order.id }}</strong> and are preparing it for shipment.</p>
+
+    <!-- Order Details Box -->
+    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.9rem;">
+            <div>
+                <span style="color: var(--text-muted); display: block;">Recipient</span>
+                <strong>{{ order.full_name }}</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); display: block;">Email</span>
+                <strong>{{ order.email }}</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); display: block;">Payment Method</span>
+                <strong>{{ order.get_payment_method_display }}</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); display: block;">Order Total</span>
+                <strong style="color: var(--primary); font-size: 1.1rem;">${{ order.total_amount }}</strong>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; font-size: 0.9rem;">
+            <span style="color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Shipping Address:</span>
+            <div>{{ order.address }}, {{ order.city }} {{ order.postal_code }}</div>
+        </div>
+    </div>
+
+    <!-- Items List -->
+    <div style="text-align: left; margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem;">Items Purchased:</h3>
+        <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); overflow: hidden;">
+            {% for item in order.items.all %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; {% if forloop.last %}border-bottom: none;{% endif %}">
+                <div>
+                    <span style="font-weight: 600;">{{ item.product_name|default:item.product.name }}</span>
+                    <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">&times; {{ item.quantity }}</span>
+                </div>
+                <div style="font-weight: 700;">${{ item.get_total_price }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 1rem;">
+        <a href="{% url 'store:products' %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">Continue Shopping</a>
+        <a href="{% url 'store:home' %}" class="btn btn-secondary">Return Home</a>
+    </div>
+</div>
+{% endblock %}

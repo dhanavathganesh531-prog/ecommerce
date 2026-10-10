@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if category %}{{ category.name }} - Products{% elif search_query %}Search: "{{ search_query }}" - Products{% else %}All Products - NovaStore{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="catalog-layout">
+    <!-- Sidebar Filters -->
+    <aside class="catalog-sidebar">
+        <div class="filter-group">
+            <h3 class="filter-title">Categories</h3>
+            <ul class="filter-list">
+                <li class="filter-item">
+                    <a href="{% url 'store:products' %}" class="filter-link {% if not category %}active{% endif %}">
+                        <span>All Products</span>
+                    </a>
+                </li>
+                {% for cat in categories %}
+                <li class="filter-item">
+                    <a href="{% url 'store:products_by_category' cat.slug %}" class="filter-link {% if category.slug == cat.slug %}active{% endif %}">
+                        <span>{{ cat.name }}</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">({{ cat.products.count }})</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="filter-group">
+            <h3 class="filter-title">Sort By</h3>
+            <form method="GET" action="">
+                {% if search_query %}
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="" {% if not selected_sort %}selected{% endif %}>Default Sorting</option>
+                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                    <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                </select>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Product Grid & Search Header -->
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">
+                    {% if category %}
+                        {{ category.name }}
+                    {% elif search_query %}
+                        Search results for "{{ search_query }}"
+                    {% else %}
+                        Catalog Collection
+                    {% endif %}
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">
+                    Showing {{ products.count }} product{{ products.count|pluralize }}
+                </p>
+            </div>
+            {% if search_query or category %}
+                <a href="{% url 'store:products' %}" class="btn btn-secondary btn-sm">Clear All Filters ✕</a>
+            {% endif %}
+        </div>
+
+        {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <a href="{{ product.get_absolute_url }}">
+                            <img src="{{ product.get_image }}" alt="{{ product.name }}">
+                        </a>
+                        <div class="product-badges">
+                            {% if product.has_discount %}
+                                <span class="badge badge-sale">-{{ product.discount_percentage }}%</span>
+                            {% endif %}
+                            {% if product.is_featured %}
+                                <span class="badge badge-featured">Featured</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">{{ product.category.name }}</span>
+                        <h3 class="product-title">
+                            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                        </h3>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="current-price">${{ product.get_display_price }}</span>
+                                {% if product.has_discount %}
+                                    <span class="old-price">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            <form action="{% url 'store:add_to_cart' product.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary btn-sm" title="Add to Cart">+ Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 4rem 2rem; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--dark); margin-bottom: 0.5rem;">No products found</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Try changing your search terms or exploring a different category.</p>
+                <a href="{% url 'store:products' %}" class="btn btn-primary">Browse All Products</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

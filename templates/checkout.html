@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - NovaStore{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--dark);">Checkout</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Please enter your delivery details to complete your order</p>
+</div>
+
+<form method="POST" action="{% url 'store:checkout' %}">
+    {% csrf_token %}
+    <div class="cart-layout">
+        <!-- Billing Details Form -->
+        <div class="table-card" style="padding: 2rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                📦 Shipping & Billing Information
+            </h3>
+
+            {% if form.errors %}
+                <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                    <span>Please correct the errors in the form below.</span>
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.full_name.id_for_label }}">Full Name *</label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                    <span style="color: var(--danger); font-size: 0.8rem;">{{ form.full_name.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.email.id_for_label }}">Email Address *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <span style="color: var(--danger); font-size: 0.8rem;">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.phone.id_for_label }}">Phone Number *</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <span style="color: var(--danger); font-size: 0.8rem;">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.address.id_for_label }}">Street Address *</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <span style="color: var(--danger); font-size: 0.8rem;">{{ form.address.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.city.id_for_label }}">City *</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <span style="color: var(--danger); font-size: 0.8rem;">{{ form.city.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.postal_code.id_for_label }}">Postal / Zip Code *</label>
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}
+                        <span style="color: var(--danger); font-size: 0.8rem;">{{ form.postal_code.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label" for="{{ form.payment_method.id_for_label }}">Payment Method</label>
+                {{ form.payment_method }}
+                {% if form.payment_method.errors %}
+                    <span style="color: var(--danger); font-size: 0.8rem;">{{ form.payment_method.errors.0 }}</span>
+                {% endif %}
+                <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.4rem;">
+                    For demonstration purposes, all payment options are processed instantly in test mode.
+                </small>
+            </div>
+        </div>
+
+        <!-- Order Summary Column -->
+        <div class="order-summary-card">
+            <h3 class="summary-title">Items in Order</h3>
+
+            <div style="max-height: 240px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+                {% for item in cart_items %}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="{{ item.product.get_image }}" alt="{{ item.product.name }}" style="width: 42px; height: 42px; border-radius: 6px; object-fit: cover;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--dark); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.product.name }}</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Qty: {{ item.quantity }}</div>
+                        </div>
+                    </div>
+                    <div style="font-weight: 600; color: var(--dark);">
+                        ${{ item.get_total_price }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${{ subtotal }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>
+                    {% if shipping == 0 %}
+                        <span style="color: var(--success); font-weight: 600;">FREE</span>
+                    {% else %}
+                        ${{ shipping }}
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="summary-row summary-total">
+                <span>Total Due</span>
+                <span>${{ total }}</span>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 0.95rem; font-size: 1.05rem;">
+                    Confirm & Place Order ($ {{ total }})
+                </button>
+            </div>
+
+            <div style="margin-top: 1.25rem; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+                By placing your order, you agree to NovaStore's Terms of Service and Privacy Policy.
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

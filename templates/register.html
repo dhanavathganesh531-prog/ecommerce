@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - NovaStore{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-header">
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Join NovaStore to track orders and checkout faster</p>
+    </div>
+
+    {% if form.errors %}
+        <div class="alert alert-error">
+            <span>Please correct the errors indicated below.</span>
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'store:register' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Username *</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <span style="color: var(--danger); font-size: 0.8rem;">{{ form.username.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="{{ form.email.id_for_label }}">Email Address *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <span style="color: var(--danger); font-size: 0.8rem;">{{ form.email.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                {{ form.first_name }}
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                {{ form.last_name }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="{{ form.password.id_for_label }}">Password *</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <span style="color: var(--danger); font-size: 0.8rem;">{{ form.password.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="{{ form.confirm_password.id_for_label }}">Confirm Password *</label>
+            {{ form.confirm_password }}
+            {% if form.confirm_password.errors %}
+                <span style="color: var(--danger); font-size: 0.8rem;">{{ form.confirm_password.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 1.75rem;">
+            <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem;">
+                Create Account
+            </button>
+        </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+        Already have an account? <a href="{% url 'store:login' %}" style="font-weight: 600;">Sign in here</a>
+    </div>
+</div>
+{% endblock %}
